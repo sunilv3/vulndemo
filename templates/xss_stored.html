@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>2b. XSS - Stored</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User comments are stored in the database and rendered without sanitization. Every visitor sees the injected script.</p>
+    <p><strong>Defense:</strong> Output encoding via <code>html.escape()</code> when rendering stored data.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>rendered_comments = [(c["author"], c["body"]) for c in comments]
+# raw data in template</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>rendered_comments = [(html.escape(c["author"]), html.escape(c["body"])) for c in comments]</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>Author: <input type="text" name="author" value="attacker"></label>
+    <label>Comment: <input type="text" name="body" size="50" value='&lt;script&gt;alert("Stored XSS")&lt;/script&gt;'></label>
+    <input type="submit" value="Post Comment">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> Inject <code>&lt;script&gt;alert("Stored XSS")&lt;/script&gt;</code> as a comment.
+    The script will execute for all visitors in vulnerable mode.
+</div>
+
+<h3>Comments</h3>
+{% for author, body in comments %}
+    <div class="comment">
+        <strong>{{ author|safe if mode == "VULNERABLE" else author }}</strong>:
+        {{ body|safe if mode == "VULNERABLE" else body }}
+    </div>
+{% endfor %}
+{% endblock %}

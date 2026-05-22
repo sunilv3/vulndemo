@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>10. Broken Authentication</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> SQL injection in login, weak password policies, and no session hardening.</p>
+    <p><strong>Defense:</strong> Parameterized queries, strong password policy (8+ chars, uppercase, digit), session regeneration, and session expiry.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre># SQL injection in login
+user = conn.execute(f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'")
+# No password policy for registration</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre># Parameterized query
+user = conn.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+# Password policy
+if len(password) < 8: error = "Password too short"</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <h3>Login / Register</h3>
+    <label>Username: <input type="text" name="username" value="admin"></label>
+    <label>Password: <input type="password" name="password" value="admin123"></label>
+    <label>Action:
+        <select name="action">
+            <option value="login">Login</option>
+            <option value="register">Register</option>
+        </select>
+    </label>
+    <input type="submit" value="Submit">
+</form>
+
+<div class="tip">
+    <strong>Try (vulnerable):</strong> Login as <code>admin' --</code> with any password.
+    <br><strong>Try (secure):</strong> Register with a weak password like <code>abc</code> — it will be rejected.
+</div>
+
+{% if message %}
+    <h4>{{ message }}</h4>
+{% endif %}
+{% endblock %}

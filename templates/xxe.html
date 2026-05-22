@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>8. XML External Entity (XXE)</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> The XML parser processes external entities, allowing an attacker to read local files or trigger SSRF.</p>
+    <p><strong>Defense:</strong> Disable DTDs and external entity processing in the XML parser.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>tree = ET.parse(StringIO(xml_data))  # entities enabled by default</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>parser = ET.XMLParser()
+parser.parser.entity = {}  # disable entities
+tree = ET.parse(StringIO(xml_data), parser=parser)</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>XML Data:</label>
+    <textarea name="xml" rows="8" cols="60"><?xml version="1.0"?>
+<!DOCTYPE foo [
+  <!ENTITY xxe SYSTEM "file:///etc/passwd">
+]>
+<root>&xxe;</root></textarea>
+    <input type="submit" value="Parse XML">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> The XXE payload above reads <code>/etc/passwd</code> in vulnerable mode.
+    In secure mode, external entities are disabled.
+</div>
+
+{% if result %}
+    <h4>Parsed XML:</h4>
+    <pre>{{ result }}</pre>
+{% endif %}
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VulnDemo - Security Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="sidebar">
+        <h2>VulnDemo</h2>
+        <div class="mode-indicator {{ mode.lower() }}">
+            Current Mode: <strong>{{ mode }}</strong>
+        </div>
+        <a href="/">Home</a>
+        <a href="/sql-injection?mode={{ mode.lower() }}">1. SQL Injection</a>
+        <a href="/xss-reflected?mode={{ mode.lower() }}">2a. XSS Reflected</a>
+        <a href="/xss-stored?mode={{ mode.lower() }}">2b. XSS Stored</a>
+        <a href="/xss-dom?mode={{ mode.lower() }}">2c. XSS DOM</a>
+        <a href="/command-injection?mode={{ mode.lower() }}">3. Command Injection</a>
+        <a href="/path-traversal?mode={{ mode.lower() }}">4. Path Traversal</a>
+        <a href="/csrf?mode={{ mode.lower() }}">5. CSRF</a>
+        <a href="/ssrf?mode={{ mode.lower() }}">6. SSRF</a>
+        <a href="/idor?mode={{ mode.lower() }}">7. IDOR</a>
+        <a href="/xxe?mode={{ mode.lower() }}">8. XXE</a>
+        <a href="/ssti?mode={{ mode.lower() }}">9. SSTI</a>
+        <a href="/broken-auth?mode={{ mode.lower() }}">10. Broken Auth</a>
+        <a href="/redirect?mode={{ mode.lower() }}">11. Unvalidated Redirect</a>
+        <a href="/deserialize?mode={{ mode.lower() }}">12. Insecure Deserialization</a>
+        <hr>
+        {% if session.user_id %}
+            <a href="/logout">Logout ({{ session.username }})</a>
+        {% else %}
+            <a href="/login">Login</a>
+        {% endif %}
+    </nav>
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

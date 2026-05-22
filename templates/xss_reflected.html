@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>2a. XSS - Reflected</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User input is rendered directly into the HTML page without sanitization, allowing script injection.</p>
+    <p><strong>Defense:</strong> HTML-escape all user-controlled output using <code>html.escape()</code>.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>output = user_input  # raw output</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>output = html.escape(user_input)</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>Enter text: <input type="text" name="input" size="40" value='&lt;script&gt;alert("XSS")&lt;/script&gt;'></label>
+    <input type="submit" value="Submit">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> <code>&lt;script&gt;alert("XSS")&lt;/script&gt;</code> in vulnerable mode.
+    In secure mode, the tags are escaped and displayed safely.
+</div>
+
+{% if output is not none %}
+    <h4>Output:</h4>
+    <div class="output-box">{{ output|safe if mode == "VULNERABLE" else output }}</div>
+{% endif %}
+{% endblock %}

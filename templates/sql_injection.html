@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>1. SQL Injection</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User input is concatenated directly into SQL queries, allowing attackers to bypass authentication or extract data.</p>
+    <p><strong>Defense:</strong> Parameterized queries (prepared statements) separate SQL logic from data.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+result = conn.execute(query)</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>query = "SELECT * FROM users WHERE username = ? AND password = ?"
+result = conn.execute(query, (username, password))</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <h3>Login Form</h3>
+    <label>Username: <input type="text" name="username" placeholder="admin' --"></label>
+    <label>Password: <input type="password" name="password" placeholder="anything"></label>
+    <input type="submit" value="Login">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> <code>admin' --</code> as username (vulnerable mode bypasses auth).
+    Or use: <code>' OR 1=1 --</code>
+</div>
+
+{% if query %}
+    <h4>Executed Query:</h4>
+    <pre>{{ query }}</pre>
+{% endif %}
+
+{% if result %}
+    <h4>Result:</h4>
+    <table>
+        <tr><th>ID</th><th>Username</th><th>Role</th><th>Bio</th></tr>
+        {% for row in result %}
+        <tr><td>{{ row.id }}</td><td>{{ row.username }}</td><td>{{ row.role }}</td><td>{{ row.bio }}</td></tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>VulnDemo: Security Education Platform</h1>
+<div class="mode-banner {{ mode.lower() }}">
+    <strong>Current Mode: {{ mode }}</strong>
+    <p>
+        <a href="?mode=vulnerable">Switch to VULNERABLE mode</a> |
+        <a href="?mode=secure">Switch to SECURE mode</a>
+    </p>
+</div>
+<div class="cards">
+    <div class="card">
+        <h3>12 Vulnerability Categories</h3>
+        <p>SQLi, XSS, Command Injection, Path Traversal, CSRF, SSRF, IDOR, XXE, SSTI, Broken Auth, Unvalidated Redirect, Insecure Deserialization</p>
+    </div>
+    <div class="card">
+        <h3>Dual Mode</h3>
+        <p>Each page shows the <strong>vulnerable</strong> code path (exploitable by default) and the <strong>secure</strong> code path with defenses applied.</p>
+    </div>
+    <div class="card">
+        <h3>Defensive Mechanisms</h3>
+        <p>CSP, HSTS, parameterized queries, output encoding, CSRF tokens, rate limiting, input validation, secure cookies, and more.</p>
+    </div>
+</div>
+<h2>How to use</h2>
+<ol>
+    <li>Browse each vulnerability page in <strong>VULNERABLE</strong> mode</li>
+    <li>Try the example exploits provided</li>
+    <li>Switch to <strong>SECURE</strong> mode (add <code>?mode=secure</code>) to see the defenses in action</li>
+    <li>Compare the code logic between vulnerable and secure implementations</li>
+</ol>
+{% endblock %}

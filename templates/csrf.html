@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>5. Cross-Site Request Forgery (CSRF)</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> State-changing requests (transfers) accept any POST without verifying the request came from the legitimate site.</p>
+    <p><strong>Defense:</strong> Include a unique, unpredictable CSRF token in forms and verify it on the server.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre># No CSRF token check
+amount = request.form.get("amount")
+conn.execute("UPDATE ...")</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>token = request.form.get("csrf_token")
+if token != session.get("csrf_token"):
+    message = "CSRF token invalid!"</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <h3>Transfer Funds</h3>
+    <label>Amount: <input type="text" name="amount" value="100"></label>
+    <label>To User: <input type="text" name="to" value="attacker"></label>
+    {% if mode == "SECURE" %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    {% endif %}
+    <input type="submit" value="Transfer">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> The vulnerable version has no CSRF protection. An attacker can create a malicious page that auto-submits this form.
+    <br>In secure mode, the hidden CSRF token is validated.
+    <br><br>
+    <strong>PoC (vulnerable mode):</strong> Create an HTML page with:
+    <pre>&lt;form action="http://localhost:5000/csrf?mode=vulnerable" method="POST"&gt;
+  &lt;input name="amount" value="9999"&gt;
+  &lt;input name="to" value="attacker"&gt;
+  &lt;input type="submit"&gt;
+&lt;/form&gt;
+&lt;script&gt;document.forms[0].submit()&lt;/script&gt;</pre>
+</div>
+
+{% if message %}
+    <h4>{{ message }}</h4>
+{% endif %}
+{% endblock %}

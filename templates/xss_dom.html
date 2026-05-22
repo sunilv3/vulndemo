@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>2c. XSS - DOM-based</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> The client-side JavaScript reads from the URL fragment/hash and writes directly to the DOM using <code>innerHTML</code>.</p>
+    <p><strong>Defense:</strong> Use <code>textContent</code> instead of <code>innerHTML</code>, or sanitize with <code>encodeURIComponent</code>.</p>
+</div>
+
+<div id="dom-output">
+    Welcome, <span id="greeting">Guest</span>!
+</div>
+
+<div class="tip">
+    <strong>Try (vulnerable):</strong> Append <code>#&lt;img src=x onerror=alert('DOM-XSS')&gt;</code> to the URL.<br>
+    <strong>Try (secure):</strong> Append <code>#&lt;script&gt;alert(1)&lt;/script&gt;</code> — it will be shown as text.
+</div>
+
+<script>
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+        {% if mode == "VULNERABLE" %}
+            // VULNERABLE: innerHTML allows script injection
+            document.getElementById('greeting').innerHTML = hash;
+        {% else %}
+            // SECURE: textContent is safe
+            document.getElementById('greeting').textContent = hash;
+        {% endif %}
+    }
+</script>
+{% endblock %}

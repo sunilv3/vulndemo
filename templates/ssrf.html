@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>6. Server-Side Request Forgery (SSRF)</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> The server fetches a URL provided by the user, allowing access to internal services (e.g., cloud metadata endpoints like <code>http://169.254.169.254/</code>).</p>
+    <p><strong>Defense:</strong> Validate the URL against an allowlist of permitted hosts.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>resp = requests.get(url)  # any URL</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>parsed = urlparse(url)
+hostname = parsed.hostname
+allowed = any(hostname.endswith("." + h) or hostname == h
+              for h in ALLOWED_SSRF_HOSTS)
+if not allowed: error = "URL not allowed"</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>URL: <input type="text" name="url" value="http://127.0.0.1:5000/" size="50"></label>
+    <input type="submit" value="Fetch URL">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> <code>http://127.0.0.1:5000/</code> or <code>http://169.254.169.254/</code> (cloud metadata) in vulnerable mode.
+    In secure mode, only <code>example.com</code> and <code>httpbin.org</code> are allowed.
+</div>
+
+{% if content %}
+    <h4>Response:</h4>
+    <pre>{{ content }}</pre>
+{% endif %}
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}

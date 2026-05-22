@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>7. Insecure Direct Object Reference (IDOR)</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> The application exposes direct references to internal objects (user IDs) without verifying authorization.</p>
+    <p><strong>Defense:</strong> Verify that the logged-in user owns the requested resource.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>profile_id = request.args.get("user_id")
+user = conn.execute("SELECT * FROM users WHERE id = ?", (profile_id,)).fetchone()
+# Renders any user's profile</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>profile_id = request.args.get("user_id")
+if int(profile_id) != session["user_id"]:
+    return "Unauthorized", 403</pre>
+    </div>
+</div>
+
+<form method="GET" action="?mode={{ mode.lower() }}">
+    <label>User ID: <input type="number" name="user_id" value="1"></label>
+    <input type="submit" value="View Profile">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> View user ID 1 (admin) while logged in as another user in vulnerable mode.
+    In secure mode, you can only view your own profile.
+</div>
+
+{% if user %}
+    <h3>User Profile</h3>
+    <table>
+        <tr><td>ID</td><td>{{ user.id }}</td></tr>
+        <tr><td>Username</td><td>{{ user.username }}</td></tr>
+        <tr><td>Role</td><td>{{ user.role }}</td></tr>
+        <tr><td>Bio</td><td>{{ user.bio }}</td></tr>
+    </table>
+{% else %}
+    <p>User not found.</p>
+{% endif %}
+{% endblock %}

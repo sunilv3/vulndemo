@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>9. Server-Side Template Injection (SSTI)</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User input is passed to <code>render_template_string()</code> with a user-controlled template, allowing arbitrary code execution.</p>
+    <p><strong>Defense:</strong> Use a fixed template and pass user data only as template variables, with output encoding.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>template = request.form.get("template")
+output = render_template_string(template)</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>safe_template = "Hello {{ name }}"
+output = render_template_string(safe_template, name=html.escape(name))</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>Name: <input type="text" name="name" value="{{ '{{7*7}}' }}" size="40"></label>
+    <input type="submit" value="Render">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> Use <code>{{7*7}}</code> as the name in vulnerable mode — it evaluates to <code>49</code>.
+    <br><strong>Advanced:</strong> Try <code>{{''.__class__.__mro__[1].__subclasses__()}}</code> for RCE in vulnerable mode.
+</div>
+
+{% if output %}
+    <h4>Output:</h4>
+    <div class="output-box">{{ output }}</div>
+{% endif %}
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}

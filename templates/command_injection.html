@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>3. Command Injection</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User input is passed directly to a shell command with <code>shell=True</code>.</p>
+    <p><strong>Defense:</strong> Validate input with a strict regex allowlist, and use command lists (no <code>shell=True</code>).</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>cmd = f"ping -c 1 {host}"
+output = subprocess.check_output(cmd, shell=True)</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>if not re.match(r'^[a-zA-Z0-9\.\-]+$', host):
+    error = "Invalid hostname"
+cmd = ["ping", "-c", "1", host]
+output = subprocess.check_output(cmd)</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>Host: <input type="text" name="host" value="127.0.0.1; id" size="30"></label>
+    <input type="submit" value="Ping">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> <code>127.0.0.1; id</code> or <code>127.0.0.1 && cat /etc/passwd</code> in vulnerable mode.
+    In secure mode, only valid hostnames are accepted.
+</div>
+
+{% if cmd %}
+    <h4>Command:</h4>
+    <pre>{{ cmd }}</pre>
+{% endif %}
+{% if output %}
+    <h4>Output:</h4>
+    <pre>{{ output }}</pre>
+{% endif %}
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}

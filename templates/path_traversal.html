@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>4. Path Traversal</h1>
+<div class="mode-banner {{ mode.lower() }}">Mode: <strong>{{ mode }}</strong></div>
+
+<div class="vuln-desc">
+    <p><strong>Vulnerability:</strong> User input is used directly in file path operations, allowing access to files outside the intended directory.</p>
+    <p><strong>Defense:</strong> Use <code>os.path.basename()</code> to strip directory components, and verify the resolved path is within the allowed directory.</p>
+</div>
+
+<div class="code-comparison">
+    <div class="code-block vulnerable">
+        <h4>Vulnerable Code</h4>
+        <pre>target = os.path.join(UPLOAD_DIR, filename)
+with open(target) as f: content = f.read()</pre>
+    </div>
+    <div class="code-block secure">
+        <h4>Secure Code</h4>
+        <pre>safe_name = os.path.basename(filename)
+target = os.path.join(UPLOAD_DIR, safe_name)
+real_target = os.path.realpath(target)
+if not real_target.startswith(os.path.realpath(UPLOAD_DIR)):
+    error = "Path traversal detected!"</pre>
+    </div>
+</div>
+
+<form method="POST" action="?mode={{ mode.lower() }}">
+    <label>Filename: <input type="text" name="filename" value="../../etc/passwd" size="40"></label>
+    <input type="submit" value="Read File">
+</form>
+
+<div class="tip">
+    <strong>Try:</strong> <code>../../etc/passwd</code> in vulnerable mode to read the system password file.
+    In secure mode, path traversal is detected and blocked.
+</div>
+
+{% if content %}
+    <h4>File Contents:</h4>
+    <pre>{{ content }}</pre>
+{% endif %}
+{% if error %}
+    <h4>Error:</h4>
+    <pre>{{ error }}</pre>
+{% endif %}
+{% endblock %}
