@@ -1,5 +1,7 @@
 # VulnDemo
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/sunilv3/vulndemo)
+
 VulnDemo is a deliberately vulnerable web application built with Flask and SQLite, designed for security education, testing, and training purposes. It demonstrates common web application vulnerabilities (including OWASP Top 10) in both a vulnerable state and a secure/mitigated state.
 
 Each vulnerability has a toggle mode, allowing you to switch between **Vulnerable Mode** and **Secure Mode** by appending `?mode=vulnerable` or `?mode=secure` to the URL.
