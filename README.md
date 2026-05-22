@@ -68,15 +68,64 @@ You can run VulnDemo in a containerized environment to keep your host system sec
 
 2. **Run the Docker Container:**
    ```bash
-   docker run -p 5000:5000 vulndemo
+   docker run -p 7860:7860 vulndemo
    ```
 
 3. **Access the application:**
-   Open `http://localhost:5000` in your web browser.
+   Open `http://localhost:7860` in your web browser.
+
+---
+
+### Method 3: Deploying to Hugging Face Spaces (Free, No Card Required)
+
+You can host this Flask application on Hugging Face Spaces for free using Docker.
+
+1. Create a free account on [Hugging Face](https://huggingface.co/).
+2. Click on **Spaces** -> **Create new Space**.
+3. Choose a name, select **Docker** as the SDK, and select **Blank** as the template.
+4. Clone your new Hugging Face Space repository locally:
+   ```bash
+   git clone https://huggingface.co/spaces/YOUR_USERNAME/YOUR_SPACE_NAME
+   ```
+5. Copy all files from this project into your local space directory.
+6. Commit and push the files to Hugging Face:
+   ```bash
+   git add .
+   git commit -m "Deploy VulnDemo to Space"
+   git push
+   ```
+7. Your app will automatically build and run live!
+
+---
+
+### Method 4: Deploying to PythonAnywhere (Free, No Card Required)
+
+1. Sign up for a free Beginner account on [PythonAnywhere](https://www.pythonanywhere.com/).
+2. Open a **Bash Console** from your dashboard.
+3. Clone your GitHub repository:
+   ```bash
+   git clone https://github.com/sunilv3/vulndemo.git
+   ```
+4. Navigate to the **Web** tab in your dashboard, click **Add a new web app**, and choose **Manual Configuration** (with Python 3.10).
+5. Under **Virtualenv**, create one and install dependencies:
+   ```bash
+   mkvirtualenv myenv --python=/usr/bin/python3.10
+   pip install -r requirements.txt
+   ```
+6. Edit your WSGI configuration file (link available under the Web tab) to point to your app:
+   ```python
+   import sys
+   path = '/home/YOUR_USERNAME/vulndemo'
+   if path not in sys.path:
+       sys.path.append(path)
+   from app import app as application
+   ```
+7. Click **Reload** to launch your live application!
 
 ---
 
 ## 🛡️ Toggle Modes
+
 
 Switch between security states dynamically in the URL:
 - **Vulnerable mode**: Add `?mode=vulnerable` (default)

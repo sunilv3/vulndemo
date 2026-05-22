@@ -1,17 +1,21 @@
-# Use official Python runtime as a parent image
 FROM python:3.10-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy all files and set ownership to user 1000 (Hugging Face Spaces runs as user 1000)
+COPY --chown=1000:1000 . /app
 
-# Install any needed packages specified in requirements.txt
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 5000 to the outside world
-EXPOSE 5000
+# Create uploads directory if not present and ensure permissions
+RUN mkdir -p uploads && chown -R 1000:1000 /app
 
-# Run app.py when the container launches
-CMD ["python", "app.py"]
+# Switch to non-root user
+USER 1000
+
+# Expose the default port for Hugging Face Spaces
+EXPOSE 7860
+
+# Run gunicorn binding to port 7860
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "app:app"]
